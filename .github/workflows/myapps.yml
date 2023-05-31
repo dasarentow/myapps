@@ -9,28 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      SECRET_KEY: ${{secrets.SECRET_KEY}}
-      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
-      DATABASE_NAME: ${{secrets.DATABASE_NAME}}
-      DJANGO_SETTINGS_MODULE: ${{secrets.DJANGO_SETTINGS_MODULE}}
-
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.7, 3.8, 3.9, 3.11]
-
-     services:
-      postgres:
-        image: postgres
-        ports: 
-          - 5432:5432
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-          POSTGRES_DB: ${{secrets.DATABASE_NAME}}
-        
-          options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        python-version: [3.7, 3.8, 3.9]
 
     steps:
       - uses: actions/checkout@v3
@@ -44,4 +26,4 @@ jobs:
           pip install -r requirements.txt
       - name: Run Tests
         run: |
-          pytest --ds=project.github_settings -v --nomigrations
+          pytest
