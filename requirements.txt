@@ -45,6 +45,12 @@ psycopg2-binary==2.9.6
 pycparser==2.21
 PyJWT==2.6.0
 pyscopg2==66.0.2
+pytest==7.3.1
+pytest-black==0.3.12
+pytest-cov==4.1.0
+pytest-django==4.5.2
+pytest-sugar==0.9.7
+pytest-xdist==3.3.1
 python-dateutil==2.8.2
 python-dotenv==1.0.0
 python3-openid==3.2.0
