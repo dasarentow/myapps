@@ -6,15 +6,13 @@ from myusers.serializers import *
 
 class ProductSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField(read_only=True)
+    image = serializers.ImageField(required=False)
     # edit_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Product
         # fields = '__all__'
-        read_only_fields = (
-            "get_thumbnail",
-
-        )
+        read_only_fields = ("get_thumbnail",)
         fields = (
             "id",
             "name",
@@ -23,27 +21,31 @@ class ProductSerializer(serializers.ModelSerializer):
             "price",
             "get_image",
             "get_thumbnail",
+            "image",
+            "category",
             # "thumbnail",
-            'endpoint',
-            'slug',
-            'url',
-            'countInStock',
+            "endpoint",
+            "slug",
+            "url",
+            "countInStock",
             # 'discounts',
             # 'edit_url',
             # 'discount',
-            'tax_price',
-            'discounted_price',
+            "tax_price",
+            "discounted_price",
             "discount_in_percentage",
-            'sell_price',
+            "sell_price",
         )
 
     def get_url(self, obj):
         # return f'/api/products/generic/{obj.pk}/'
-        request = self.context.get('request')  # self.context
+        request = self.context.get("request")  # self.context
         # print('context', self.context)
         if request is None:
             return None
-        return reverse("product:myproduct-detail", kwargs={"slug": obj.slug}, request=request)
+        return reverse(
+            "product:myproduct-detail", kwargs={"slug": obj.slug}, request=request
+        )
 
     # def get_edit_url(self, obj):
     #     # return f'/api/products/generic/{obj.pk}/'
@@ -68,24 +70,24 @@ class CategorySerializer(serializers.ModelSerializer):
             "get_absolute_url",
             "products",
             "url",
-            'endpoints',
-
+            "endpoints",
         )
 
     def get_url(self, obj):
         # return f'/api/products/generic/{obj.pk}/'
-        request = self.context.get('request')  # self.context
+        request = self.context.get("request")  # self.context
         # print('context', self.context)
         if request is None:
             return None
-        return reverse("product:mycategory-detail", kwargs={"pk": obj.pk}, request=request)
+        return reverse(
+            "product:mycategory-detail", kwargs={"pk": obj.pk}, request=request
+        )
 
 
 class CartSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Cart
-        fields = '__all__'
+        fields = "__all__"
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -95,16 +97,16 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CartItem
-        fields = '__all__'
+        fields = "__all__"
 
 
 class DiscountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Discount
-        fields = '__all__'
+        fields = "__all__"
 
 
 class TaxSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tax
-        fields = '__all__'
+        fields = "__all__"

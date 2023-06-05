@@ -30,7 +30,8 @@ __pycache__/
 # Virtual environment
 venv/
 env/
-
+respay/
+respay
 # Database
 db.sqlite3
 

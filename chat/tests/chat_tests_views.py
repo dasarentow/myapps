@@ -273,13 +273,13 @@ class TestAddLikes(TestCase):
         assert self.topic.like.all().count() == 1
         topic_participant = self.topic.like.all().first()
         like = Like.objects.get(pk=topic_participant.id)
-        print("data: %s" % topic_participant.participants.count())
+        # print("data: %s" % topic_participant.participants.count())
 
         new_response = self.client2.put(
             self.add_like_url, data=data, content="application/json"
         )
         new_topic_participant = self.topic.like.all().first()
-        print("new response", new_topic_participant.participants.all())
+        # print("new response", new_topic_participant.participants.all())
 
         user = User.objects.create(
             username="tested", email="tested@example", password="tested"
