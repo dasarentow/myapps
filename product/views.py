@@ -45,6 +45,7 @@ class CartItemView(APIView):
     ]
 )
 def add_to_carts(request, *args, **kwargs):
+    print("i am at add_to_carts")
     queryset = CartItem.objects.all()
     myproduct = Product.objects.all()
     data = request.data

@@ -8,6 +8,7 @@ from product.models import (
     CartItem,
     make_thumbnail,
 )
+from django.core import serializers
 from django.http import Http404
 from product.views import ProductDetail, CategoryDetail
 from product.serializers import ProductSerializer
@@ -75,7 +76,7 @@ def product_one(
         # discount=discount,
         price=Decimal(2.34),
         # tax=tax,
-        countInStock=2,
+        countInStock=8,
     )
     yield product_one
     # Clean up after the test is completed
@@ -92,7 +93,7 @@ def product_two(category_accessories, autouse=True):
         # discount=discount,
         price=Decimal(2.34),
         # tax=tax,
-        countInStock=3,
+        countInStock=9,
     )
     yield product_two
     # Clean up after the test is completed
@@ -109,7 +110,7 @@ def product_three(category_accessories, autouse=True):
         price=Decimal(2.34),
         # discount=discount,
         # tax=tax,
-        countInStock=4,
+        countInStock=10,
     )
 
     yield product_three
@@ -154,6 +155,8 @@ class TestProductViews(TestCase):
         self.add_to_cart_url = reverse("product:try")
         self.my_cartitem_url = reverse("product:mycartitem-list")
         self.category_one = Category.objects.filter(name="accessories")
+
+        self.cartItem = []
 
     def test_list_products(self):
         my_product_url = reverse("product:myproduct-list")
@@ -208,9 +211,6 @@ class TestProductViews(TestCase):
             self.add_to_cart_url, data=data, content="application/json"
         )
 
-        cart_item_one = CartItem.objects.get(customer__email=self.user1.email)
-        cart_item_two = CartItem.objects.filter(customer__email=self.user2.email)
-
         assert response.data[0]["product"]["id"] == self.product1.id
         assert response.data[0]["quantity"] == data["quantity"]
         assert response.data[0]["price"] == float(self.product1.price)
@@ -230,9 +230,6 @@ class TestProductViews(TestCase):
             self.add_to_cart_url, data=data3, content="application/json"
         )
 
-        cart_item_onec = CartItem.objects.filter(customer__email=self.user1.email)
-        cart_item_twoc = CartItem.objects.filter(customer__email=self.user2.email)
-
         assert response.status_code == status.HTTP_200_OK
         assert responsess.status_code == status.HTTP_200_OK
 
@@ -248,13 +245,28 @@ class TestProductViews(TestCase):
 
         """test delete functionality"""
         delete_cart_url = reverse("product:mycartitem-detail", kwargs={"pk": 1})
-        response = self.client1.delete(delete_cart_url)
-
-        assert response.status_code == status.HTTP_204_NO_CONTENT
+        result = self.client1.delete(delete_cart_url)
+        assert result.status_code == status.HTTP_204_NO_CONTENT
 
         response = self.client1.get(self.add_to_cart_url)
         assert response.status_code == 200
         assert len(response.data) == 2
+
+        """test create order view in order app """
+        create_order_url = reverse("order:create-orders")
+
+        response = self.client1.get(self.add_to_cart_url)
+
+        request_data = {"ordered_items": response.data, "paid_amount": 65345}
+        response = self.client1.put(create_order_url, data=request_data, format="json")
+        assert response.status_code == status.HTTP_200_OK
+
+        # test get method
+        response = self.client1.get(create_order_url)
+        print("sa test", response.data)
+        assert response.status_code == status.HTTP_200_OK
+
+        """end of test create order view in order app """
 
     def test_my_cartitem(self):
         response = self.client1.get(self.my_cartitem_url)
@@ -267,10 +279,7 @@ class TestProductViews(TestCase):
 
         obj = view.get_object(category.slug, self.product1.slug)
         self.assertEqual(obj, self.product1)
-        # product_one_category = Product.objects.get(
-        #     category__name=self.product1.category
-        # )
-        # category_product_one = category.products.all()
+
         url = reverse("product:prds", args=[category.slug, self.product1.slug])
         response = self.client1.get(url)
         assert response.data == ProductSerializer(self.product1).data
